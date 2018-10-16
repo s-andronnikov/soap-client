@@ -95,24 +95,24 @@ class BulkSaver implements BulkSaverInterface
         $results = array();
 
         if (count($this->bulkDeleteRecords) > 0) {
-            $results[] = $this->flushDeletes();
+            array_push($results, $this->flushDeletes());
         }
 
         foreach ($this->bulkCreateRecords as $type => $objects) {
             if (count($objects) > 0) {
-                $results[] = $this->flushCreates($type);
+                array_push($results, $this->flushCreates($type));
             }
         }
 
         foreach ($this->bulkUpdateRecords as $type => $objects) {
             if (count($objects) > 0) {
-                $results[] = $this->flushUpdates($type);
+                array_push($results, $this->flushUpdates($type));
             }
         }
 
         foreach ($this->bulkUpsertRecords as $type => $objects) {
             if (count($objects) > 0) {
-                $results[] = $this->flushUpserts($type);
+                array_push($results, $this->flushUpserts($type));
             }
         }
 
@@ -166,7 +166,7 @@ class BulkSaver implements BulkSaverInterface
      * Add a record to the create queue
      *
      * @param sObject $sObject
-     * @param type $objectType
+     * @param string  $objectType
      */
     private function addBulkCreateRecord($record, $objectType)
     {
@@ -175,7 +175,7 @@ class BulkSaver implements BulkSaverInterface
             $this->flushCreates($objectType);
         }
 
-        $this->bulkCreateRecords[$objectType][] = $record;
+        array_push($this->bulkCreateRecords[$objectType], $record);
     }
 
     /**
@@ -191,7 +191,7 @@ class BulkSaver implements BulkSaverInterface
             $this->flushDeletes();
         }
 
-        $this->bulkDeleteRecords[] = $record;
+        array_push($this->bulkDeleteRecords, $record);
     }
 
      /**
@@ -207,7 +207,7 @@ class BulkSaver implements BulkSaverInterface
             $this->flushUpdates($objectType);
         }
 
-        $this->bulkUpdateRecords[$objectType][] = $sObject;
+        array_push($this->bulkUpdateRecords[$objectType], $sObject);
     }
 
     /**
@@ -225,7 +225,7 @@ class BulkSaver implements BulkSaverInterface
             $this->flushUpserts($objectType);
         }
 
-        $this->bulkUpsertRecords[$objectType][] = $sObject;
+        array_push($this->bulkUpsertRecords[$objectType], $sObject);
     }
 
      /**
@@ -236,8 +236,8 @@ class BulkSaver implements BulkSaverInterface
      */
     private function flushCreates($objectType)
     {
-        $result = $this->client->create($this->bulkCreateRecords[$objectType], $objectType);
         $this->bulkCreateRecords[$objectType] = array();
+        $result = $this->client->create($this->bulkCreateRecords[$objectType], $objectType);
 
         return $result;
     }
@@ -254,8 +254,8 @@ class BulkSaver implements BulkSaverInterface
             $ids[] = $record->Id;
         }
 
-        $result = $this->client->delete($ids);
         $this->bulkDeleteRecords = array();
+        $result = $this->client->delete($ids);
 
         return $result;
     }
@@ -268,8 +268,8 @@ class BulkSaver implements BulkSaverInterface
      */
     private function flushUpdates($objectType)
     {
-        $result = $this->client->update($this->bulkUpdateRecords[$objectType], $objectType);
         $this->bulkUpdateRecords[$objectType] = array();
+        $result = $this->client->update($this->bulkUpdateRecords[$objectType], $objectType);
 
         return $result;
     }
@@ -282,11 +282,11 @@ class BulkSaver implements BulkSaverInterface
      */
     private function flushUpserts($objectType)
     {
+        $this->bulkUpsertRecords[$objectType] = array();
         $result = $this->client->upsert(
             $this->bulkUpsertMatchFields[$objectType],
             $this->bulkUpsertRecords[$objectType],
             $objectType);
-        $this->bulkUpsertRecords[$objectType] = array();
 
         return $result;
     }

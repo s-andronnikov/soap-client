@@ -508,13 +508,10 @@ class Client extends AbstractHasDispatcher implements ClientInterface
      * @param array $results Results
      * @param array $params  Parameters
      *
-     * @throws Exception\SaveException  When Salesforce returned an error
      * @return array
      */
     protected function checkResult(array $results, array $params)
     {
-        $exceptions = new Exception\SaveException();
-
         for ($i = 0; $i < count($results); $i++) {
 
             // If the param was an (s)object, set it’s Id field
@@ -526,12 +523,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
 
             if (!$results[$i]->isSuccess()) {
                 $results[$i]->setParam($params[$i]);
-                $exceptions->add($results[$i]);
             }
-        }
-
-        if ($exceptions->count() > 0) {
-            throw $exceptions;
         }
 
         return $results;

@@ -175,6 +175,9 @@ class BulkSaver implements BulkSaverInterface
             $this->flushCreates($objectType);
         }
 
+        if (!isset($this->bulkCreateRecords[$objectType])) {
+            $this->bulkCreateRecords[$objectType] = array();
+        }
         array_push($this->bulkCreateRecords[$objectType], $record);
     }
 
@@ -190,7 +193,9 @@ class BulkSaver implements BulkSaverInterface
         if ($this->bulkDeleteLimit === count($this->bulkDeleteRecords)) {
             $this->flushDeletes();
         }
-
+        if (!isset($this->bulkDeleteRecords)) {
+            $this->bulkDeleteRecords = array();
+        }
         array_push($this->bulkDeleteRecords, $record);
     }
 
@@ -207,6 +212,9 @@ class BulkSaver implements BulkSaverInterface
             $this->flushUpdates($objectType);
         }
 
+        if (!isset($this->bulkUpdateRecords[$objectType])) {
+            $this->bulkUpdateRecords[$objectType] = array();
+        }
         array_push($this->bulkUpdateRecords[$objectType], $sObject);
     }
 
@@ -224,7 +232,9 @@ class BulkSaver implements BulkSaverInterface
             && count($this->bulkUpsertRecords[$objectType]) == $this->bulkSaveLimit) {
             $this->flushUpserts($objectType);
         }
-
+        if (!isset($this->bulkUpsertRecords[$objectType])) {
+            $this->bulkUpsertRecords[$objectType] = array();
+        }
         array_push($this->bulkUpsertRecords[$objectType], $sObject);
     }
 

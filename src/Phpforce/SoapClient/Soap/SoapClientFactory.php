@@ -54,7 +54,10 @@ class SoapClientFactory
     /**
      * @param string $wsdl Path to WSDL file
      * @param array $soapOptions
+     *
      * @return SoapClient
+     *
+     * @throws \SoapFault
      */
     public function factory($wsdl, array $soapOptions = array())
     {
@@ -63,7 +66,14 @@ class SoapClientFactory
             'features'   => \SOAP_SINGLE_ELEMENT_ARRAYS,
             'classmap'   => $this->classmap,
             'typemap'    => $this->getTypeConverters()->getTypemap(),
-            'cache_wsdl' => \WSDL_CACHE_MEMORY
+            'cache_wsdl' => \WSDL_CACHE_MEMORY,
+            'stream_context' => stream_context_create(array(
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true,
+                ),
+            )),
         );
 
         $options = array_merge($defaults, $soapOptions);
